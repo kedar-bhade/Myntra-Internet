@@ -2,18 +2,25 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import './App.css'
 
-function ProductList({ onAdd }) {
+function ProductList({ onAdd, categoryId, search }) {
   const [products, setProducts] = useState([])
   useEffect(() => {
-    fetch('/api/products')
+    const url = categoryId
+      ? `/api/categories/${categoryId}/products`
+      : '/api/products'
+    fetch(url)
       .then(res => res.json())
       .then(setProducts)
       .catch(console.error)
-  }, [])
+  }, [categoryId])
+
+  const filtered = products.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <div className="products">
-      {products.map(p => (
+      {filtered.map(p => (
         <div className="product" key={p.id}>
           <img src={p.imageUrl} alt={p.name} />
           <div className="info">
@@ -55,11 +62,20 @@ function Cart({ items, onRemove }) {
 
 function App() {
   const [cart, setCart] = useState([])
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     fetch('/api/cart')
       .then(res => res.json())
       .then(setCart)
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(setCategories)
   }, [])
 
   const addToCart = productId => {
@@ -77,12 +93,42 @@ function App() {
   return (
     <BrowserRouter>
       <header className="nav">
-        <Link to="/">Home</Link>
-        <Link to="/cart">Cart ({cart.length})</Link>
+        <Link to="/" className="brand">Myntra</Link>
+        <nav className="menu">
+          {categories.map(c => (
+            <button
+              key={c.id}
+              className={selectedCategory === c.id ? 'active' : ''}
+              onClick={() => setSelectedCategory(c.id)}
+            >
+              {c.name}
+            </button>
+          ))}
+        </nav>
+        <input
+          type="text"
+          className="search"
+          placeholder="Search for products, brands and more"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <Link to="/cart" className="cart-link">Cart ({cart.length})</Link>
       </header>
       <Routes>
-        <Route path="/" element={<ProductList onAdd={addToCart} />} />
-        <Route path="/cart" element={<Cart items={cart} onRemove={removeFromCart} />} />
+        <Route
+          path="/"
+          element={
+            <ProductList
+              onAdd={addToCart}
+              categoryId={selectedCategory}
+              search={search}
+            />
+          }
+        />
+        <Route
+          path="/cart"
+          element={<Cart items={cart} onRemove={removeFromCart} />}
+        />
       </Routes>
     </BrowserRouter>
   )
