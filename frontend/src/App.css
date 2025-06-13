@@ -19,6 +19,15 @@
   padding: 1rem;
 }
 
+.products-wrapper .search {
+  margin: 1rem;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .product {
   border: 1px solid #ddd;
   padding: 1rem;
@@ -45,4 +54,13 @@
 
 .cart li {
   margin: 0.5rem 0;
+}
+
+.checkout {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+.orders {
+  padding: 1rem;
 }

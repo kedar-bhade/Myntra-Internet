@@ -44,6 +44,14 @@ app.MapGet("/api/categories/{id:int}/products", (int id) =>
 
 app.MapGet("/api/cart", () => Cart.Items);
 
+app.MapGet("/api/products/search", (string q) =>
+{
+    var query = q.ToLower();
+    var results = SeedData.Products
+        .Where(p => p.Name.ToLower().Contains(query));
+    return Results.Ok(results);
+});
+
 app.MapPost("/api/cart/{productId:int}", (int productId) =>
 {
     var item = Cart.Items.FirstOrDefault(c => c.ProductId == productId);
@@ -64,6 +72,16 @@ app.MapDelete("/api/cart/{productId:int}", (int productId) =>
     if (item is null) return Results.NotFound();
     Cart.Items.Remove(item);
     return Results.Ok(Cart.Items);
+});
+
+app.MapGet("/api/orders", () => OrderStore.Orders);
+
+app.MapPost("/api/orders", () =>
+{
+    if (!Cart.Items.Any()) return Results.BadRequest("Cart is empty");
+    var order = OrderStore.AddOrder(Cart.Items, SeedData.Products);
+    Cart.Items.Clear();
+    return Results.Ok(order);
 });
 
 app.Run();

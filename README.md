@@ -29,6 +29,8 @@ The frontend is configured to proxy API requests to `http://localhost:5000`.
 
 ## Features
 - In-memory product, category and cart APIs
+- Order checkout endpoint
+- Product search endpoint
 - Remote product images
 - React interface with product grid and shopping cart
 
